@@ -7,6 +7,23 @@ Open-source library accompanying the Anthropic Transformer Circuits post
 
 ---
 
+### Per-token advantages (GAE)
+
+GRPO gives every token of an explanation the same advantage. With an
+attention-readout critic the value of every explanation prefix comes out of the
+reward-scoring pass for free, and GAE(λ = 0.97) on that value learns faster at the
+same rollout cost (about 0.1 s/step extra). Small-scale A/B, SmolLM2-135M, same
+GPUs, seed 0; held-out FVE is each run's trained AV + AR pair on 8,192 held-out
+vectors:
+
+![Held-out FVE](docs/figures/gae_vs_grpo.png)
+
+Method, variants, the leak tests a per-token baseline has to pass, and the Miles
+mapping: **[docs/gae.md](docs/gae.md)**. Minimal code that recreates the runs:
+`examples/small_scale_gae/`.
+
+---
+
 A Natural Language Autoencoder is a pair of fine-tuned LMs that map
 residual-stream activation vectors to natural language and back:
 
@@ -169,10 +186,10 @@ configs/              training shell configs + datagen YAMLs
 scripts/              multi-GPU launch wrappers (datagen)
 patches/              SGLang training patches (bf16 transport, chunked-prefill) + apply script
 tools/                FSDP-DCP / Megatron-dist ↔ HF checkpoint converters
-docs/                 design.md (training), inference.md (serving)
+docs/                 design.md (training), inference.md (serving), gae.md (per-token advantages)
 release/              HF model-card templates + sidecar sanitiser for releases
 nla_inference.py      standalone single-file inference client
-examples/             worked decode transcripts
+examples/             worked decode transcripts; small_scale_gae/ (GAE reference implementation)
 ```
 
 ---
